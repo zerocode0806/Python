@@ -3,6 +3,7 @@ In Python.zip, is where I used to learn Python using AI
 It contains Apps, Games, and My Python practice
 
 #Here's My file directory
+
 #Apps
   - ai-chatbot
   - face-recognition
@@ -17,6 +18,7 @@ It contains Apps, Games, and My Python practice
   - whatsapp-scheduler
   - youtube-downloader
   - youtube-playlist-maker(Not Fully Work)
+
 #Games
   - endlessrun
   - maze-generator
