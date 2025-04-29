@@ -19,6 +19,7 @@ text-to-speech	✅ Completed	Convert text into speech audio.
 whatsapp-scheduler	✅ Completed	Automate WhatsApp message sending.
 youtube-downloader	✅ Completed	Download YouTube videos easily.
 youtube-playlist-maker	⚠️ Partially Working	Create YouTube playlists automatically.
+
 🎮 Games
 
 Project	Status	Description
@@ -28,7 +29,9 @@ maze-generator-solver	✅ Completed	Solve generated mazes automatically.
 player	✅ Completed	Game player or controller project.
 quiz	✅ Completed	Interactive quiz game.
 snake	✅ Completed	Classic snake game remake.
+
 🚀 About
+
 Some projects are fully functional, while others are experiments in progress.
 
 Focus areas: Artificial Intelligence, Computer Vision, Web Apps, and Game Development.
