@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape Program - Web</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Main Menu Screen -->
+    <div id="main-menu" class="screen active">
+        <h1 class="title">Escape Program</h1>
+        <div class="menu-buttons">
+            <button id="start-game-btn">Start Game</button>
+            <button id="quit-game-btn">Quit/Exit</button>
+        </div>
+        <canvas id="main-menu-maze-bg"></canvas>
+    </div>
+
+    <!-- Maze Size Prompt Modal -->
+    <div id="maze-size-modal" class="modal">
+        <div class="modal-content">
+            <h2>Enter Maze Size</h2>
+            <label for="maze-width">Width (odd, 5-51):</label>
+            <input type="number" id="maze-width" value="25" min="5" max="51" step="2">
+            <label for="maze-height">Height (odd, 5-51):</label>
+            <input type="number" id="maze-height" value="25" min="5" max="51" step="2">
+            <button id="generate-maze-modal-btn">Generate Maze</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <canvas id="game-canvas"></canvas>
+        <div id="minimap-container">
+            <canvas id="minimap-canvas"></canvas>
+        </div>
+        <button id="pause-button" class="icon-button">&#9616;&#9616;</button>
+    </div>
+
+    <!-- Pause Menu Overlay -->
+    <div id="pause-menu" class="modal glassmorphism">
+        <div class="modal-content">
+            <h2>Game Paused</h2>
+            <button id="resume-game-btn">Resume</button>
+            <button id="exit-to-main-menu-btn">Exit to Main Menu</button>
+            <button id="solve-maze-btn">Solve the Maze</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

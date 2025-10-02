@@ -1,0 +1,192 @@
+/* Basic Reset & Body Styles */
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #1A1A1D;
+    color: #FFFFFF;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+/* Screens */
+.screen {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #1A1A1D;
+    z-index: 1;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Main Menu */
+#main-menu {
+    position: relative;
+}
+
+#main-menu-maze-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.1; /* Subtle background */
+}
+
+#main-menu .title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 4em;
+    color: #C3073F;
+    text-shadow: 0 0 15px rgba(195, 7, 63, 0.7);
+    margin-bottom: 40px;
+    z-index: 1;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 1;
+}
+
+/* Buttons */
+button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: #6F2232;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    background-color: #950740;
+    box-shadow: 0 6px 20px rgba(195, 7, 63, 0.5);
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    font-size: 2em;
+    color: #FFFFFF;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    transition: color 0.3s ease;
+}
+
+.icon-button:hover {
+    color: #C3073F;
+}
+
+/* Modals */
+.modal {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: #1A1A1D;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 300px;
+}
+
+.modal-content h2 {
+    color: #C3073F;
+    margin-bottom: 20px;
+}
+
+.modal-content label {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.modal-content input[type="number"] {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #6F2232;
+    border-radius: 5px;
+    background-color: #333333;
+    color: #FFFFFF;
+    width: calc(100% - 22px);
+    margin-bottom: 15px;
+}
+
+/* Glassmorphism effect for Pause Menu */
+.glassmorphism {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glassmorphism .modal-content {
+    background: rgba(26, 26, 29, 0.8);
+    border: 1px solid rgba(195, 7, 63, 0.3);
+}
+
+/* Game Screen */
+#game-screen {
+    background-color: #000000;
+    position: relative;
+}
+
+#game-canvas {
+    display: block;
+    background-color: #000000;
+}
+
+#minimap-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 200px; /* Fixed size as per requirements */
+    height: 200px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 2px solid #C3073F;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#minimap-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}

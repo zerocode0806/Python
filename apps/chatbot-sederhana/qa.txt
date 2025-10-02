@@ -1,0 +1,14 @@
+nama kamu siapa|Saya BotKampus, chatbot buatan Python!
+hobi kamu apa|Saya suka ngobrol dan belajar hal baru.
+berapa umurmu|Saya berumur 20 tahun.
+cuaca hari ini|Saya tidak bisa cek cuaca, coba tanya Google ya.
+apa makanan favoritmu|Saya tidak makan, tapi saya suka tahu tentang makanan.
+apa itu python|Python adalah bahasa pemrograman yang mudah dipelajari dan powerful.
+siapa presiden indonesia|Presiden Indonesia saat ini adalah Joko Widodo.
+berapa hasil dari 2+2|4
+siapa nama saya ?|nama saya adalah ubeddahlan
+apa hobi saya ?|hobi saya bermain rubik
+3+3|6
+berapa 3 + 3|keluar
+apa merek hp saya ?|merek hp saya adalah infinix
+apa makanan favorit saya ?|makanan favorit saya adalah bakso

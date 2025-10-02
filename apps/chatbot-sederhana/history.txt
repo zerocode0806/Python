@@ -1,0 +1,13 @@
+Kamu: cuaca
+Chatbot: Saya tidak bisa mengecek cuaca sekarang, coba tanyakan ke Google ya
+Kamu: rumah
+Chatbot: Maaf, saya belum mengerti maksudmu.
+Kamu: siapa nama saya?
+Chatbot: Nama saya adalah BotKampus
+Kamu: berapa umur saya ?
+Chatbot: Saya Berumur 20 Tahun
+Kamu: apa hobi saya ?
+Chatbot: Hobi saya adalah ngobrol dengan manusia seperti kamu!
+Kamu: keluar
+Chatbot: Sampai jumpa!
+Kamu: keluar

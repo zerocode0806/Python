@@ -1,0 +1,1 @@
+trained_digit_model.h5
