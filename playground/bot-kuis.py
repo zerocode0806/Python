@@ -26,7 +26,7 @@ def read_screen_text():
 # 3. Kirim ke ChatGPT untuk menjawab
 
 
-client = OpenAI(api_key="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")  # ← Ganti dengan API key kamu
+client = OpenAI(api_key="")  # ← Ganti dengan API key kamu
 
 def ask_ai(prompt):
     response = client.chat.completions.create(
