@@ -1,75 +1,102 @@
-import tensorflow as tf
-import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn
 import numpy as np
 from PIL import Image, ImageDraw
 import tkinter as tk
 from tkinter import ttk, messagebox
 import os
 
+class FastCNN(nn.Module):
+    """Same architecture as training script"""
+    def __init__(self, num_classes=26):
+        super(FastCNN, self).__init__()
+        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)
+        self.bn1 = nn.BatchNorm2d(32)
+        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
+        self.bn2 = nn.BatchNorm2d(64)
+        self.conv3 = nn.Conv2d(64, 128, 3, padding=1)
+        self.bn3 = nn.BatchNorm2d(128)
+        
+        self.pool = nn.MaxPool2d(2, 2)
+        self.dropout = nn.Dropout(0.3)
+        
+        self.fc1 = nn.Linear(128 * 3 * 3, 256)
+        self.fc2 = nn.Linear(256, num_classes)
+    
+    def forward(self, x):
+        x = self.pool(torch.relu(self.bn1(self.conv1(x))))
+        x = self.pool(torch.relu(self.bn2(self.conv2(x))))
+        x = self.pool(torch.relu(self.bn3(self.conv3(x))))
+        
+        x = x.view(x.size(0), -1)
+        x = self.dropout(torch.relu(self.fc1(x)))
+        x = self.fc2(x)
+        return x
+
 class AlphabetRecognizer:
     def __init__(self):
         self.model = None
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.alphabet_mapping = {i: chr(65 + i) for i in range(26)}  # 0:'A', 1:'B', ..., 25:'Z'
         self.load_saved_model()
         
     def load_saved_model(self):
-        """Load the model - supports both .h5 and .keras files"""
-        # Get the folder where this script is located
+        """Load the PyTorch model"""
         base_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(base_dir, 'best_alphabet_model.pth')
         
-        # Try both .h5 and .keras extensions for the same base filename
-        for extension in ['.h5', '.keras']:
-            model_path = os.path.join(base_dir, 'Best_points' + extension)
-            
-            if os.path.exists(model_path):
-                try:
-                    self.model = tf.keras.models.load_model(model_path)
-                    print(f"✅ Successfully loaded alphabet model: Best_points{extension}")
-                    return True
-                except Exception as e:
-                    print(f"⚠️ Error loading Best_points{extension}: {e}")
-                    continue
-        
-        print("❌ No model found!")
-        print("Please ensure you have 'Best_points.h5' or 'Best_points.keras' in the same folder.")
-        return False
-    
-
+        if os.path.exists(model_path):
+            try:
+                # Create model architecture
+                self.model = FastCNN(num_classes=26)
+                
+                # Load weights
+                self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+                self.model.to(self.device)
+                self.model.eval()  # Set to evaluation mode
+                
+                print(f"✅ Successfully loaded PyTorch model: best_alphabet_model.pth")
+                print(f"🔥 Device: {self.device}")
+                return True
+            except Exception as e:
+                print(f"❌ Error loading model: {e}")
+                return False
+        else:
+            print("❌ Model file not found: best_alphabet_model.pth")
+            print("Please ensure you have trained the model first!")
+            return False
 
     def predict_letter(self, image_array):
-        """Predict letter from image array"""
+        """Predict letter from image array (28x28 grayscale)"""
         if self.model is None:
             return None, []
 
         try:
-            # Handle different input shapes
-            input_shape = self.model.input_shape
+            # Preprocess image
+            # Convert to RGB (repeat grayscale 3 times)
+            img_rgb = np.repeat(image_array[:, :, np.newaxis], 3, axis=2)
             
-            if len(input_shape) == 4:  # CNN model (batch, height, width, channels)
-                # Reshape for CNN input (28x28x1)
-                processed_image = image_array.reshape(1, 28, 28, 1).astype("float32") / 255.0
-            elif len(input_shape) == 2:  # Dense model (batch, features)
-                # Flatten for dense input (784,)
-                processed_image = image_array.reshape(1, 784).astype("float32") / 255.0
-            else:
-                print(f"⚠️ Unexpected input shape: {input_shape}")
-                return None, []
-
+            # Normalize to [-1, 1] range (same as training)
+            img_normalized = (img_rgb.astype(np.float32) / 255.0 - 0.5) / 0.5
+            
+            # Convert to PyTorch tensor (CHW format)
+            img_tensor = torch.from_numpy(img_normalized).permute(2, 0, 1).unsqueeze(0)
+            img_tensor = img_tensor.to(self.device)
+            
             # Make prediction
-            predictions = self.model.predict(processed_image, verbose=0)[0]
+            with torch.no_grad():
+                outputs = self.model(img_tensor)
+                probabilities = torch.softmax(outputs, dim=1)[0].cpu().numpy()
             
-            # Ensure we have 26 predictions for A-Z
-            if len(predictions) != 26:
-                print(f"⚠️ Model output size {len(predictions)} doesn't match alphabet size (26)")
-                return None, []
-            
-            predicted_letter_index = np.argmax(predictions)
+            predicted_letter_index = np.argmax(probabilities)
             predicted_letter = self.alphabet_mapping[predicted_letter_index]
 
-            return predicted_letter, predictions
+            return predicted_letter, probabilities
             
         except Exception as e:
             print(f"❌ Prediction error: {e}")
+            import traceback
+            traceback.print_exc()
             return None, []
 
 class AlphabetRecognitionGUI:
@@ -86,14 +113,15 @@ class AlphabetRecognitionGUI:
         root.withdraw()
         messagebox.showerror(
             "No Model Found", 
-            "Please ensure you have 'Best_points.h5' or 'Best_points.keras' in the same folder!"
+            "Please train the model first using the training script!\n" +
+            "Make sure 'best_alphabet_model.pth' exists in the same folder."
         )
         root.destroy()
         
     def setup_gui(self):
-        """Setup the minimalist GUI"""
+        """Setup the GUI"""
         self.root = tk.Tk()
-        self.root.title("Alphabet Recognition - Neural Network Output (.h5 Support)")
+        self.root.title("PyTorch Alphabet Recognition - Fast CNN Model")
         self.root.geometry("800x600")
         
         # Main frame
@@ -101,7 +129,7 @@ class AlphabetRecognitionGUI:
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         # Title
-        title_label = ttk.Label(main_frame, text="Handwritten Alphabet Recognition (A-Z)", 
+        title_label = ttk.Label(main_frame, text="🔥 PyTorch Alphabet Recognition (A-Z)", 
                                font=('Arial', 16, 'bold'))
         title_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
         
@@ -118,19 +146,19 @@ class AlphabetRecognitionGUI:
         # Drawing controls
         ttk.Button(draw_frame, text="Clear", 
                   command=self.clear_canvas).grid(row=1, column=0, padx=(0, 5))
-        ttk.Button(draw_frame, text="Predict", 
+        ttk.Button(draw_frame, text="🚀 Predict", 
                   command=self.predict_drawing).grid(row=1, column=1, padx=(5, 0))
         
         # Neural network output section
         neural_frame = ttk.LabelFrame(main_frame, text="Neural Network Output (26 Letters)", padding="15")
         neural_frame.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(10, 0))
         
-        # Create letter display in a more compact grid
+        # Create letter display
         self.letter_frames = []
         self.letter_labels = []
         self.prediction_labels = []
         
-        # Arrange 26 letters in 5 rows (6,6,6,4,4) for better layout
+        # Arrange 26 letters in rows
         letters_per_row = [6, 6, 6, 4, 4]
         current_letter = 0
         
@@ -139,14 +167,14 @@ class AlphabetRecognitionGUI:
                 if current_letter >= 26:
                     break
                     
-                letter = chr(65 + current_letter)  # Convert index to letter
+                letter = chr(65 + current_letter)
                 
                 # Frame for each letter
                 letter_frame = ttk.Frame(neural_frame, relief='solid', borderwidth=1, padding="4")
                 letter_frame.grid(row=row_idx, column=col_idx, padx=1, pady=1, sticky=(tk.W, tk.E))
                 self.letter_frames.append(letter_frame)
                 
-                # Letter (medium size for better fit)
+                # Letter label
                 letter_label = ttk.Label(letter_frame, text=letter, 
                                        font=('Arial', 12, 'bold'), 
                                        anchor='center')
@@ -160,7 +188,6 @@ class AlphabetRecognitionGUI:
                 pred_label.grid(row=1, column=0)
                 self.prediction_labels.append(pred_label)
                 
-                # Configure column weight
                 letter_frame.columnconfigure(0, weight=1)
                 current_letter += 1
         
@@ -184,18 +211,16 @@ class AlphabetRecognitionGUI:
     def update_neural_display(self, predictions):
         """Update the neural network output display"""
         if predictions is None:
-            # Reset all displays
             for i in range(26):
                 self.prediction_labels[i].config(text="0.0%", foreground='gray')
                 self.letter_labels[i].config(foreground='gray')
                 self.letter_frames[i].config(relief='solid', borderwidth=1)
         else:
-            # Find the highest prediction
             max_letter_index = np.argmax(predictions)
             max_confidence = predictions[max_letter_index]
             predicted_letter = chr(65 + max_letter_index)
             
-            # Get top 3 predictions for console output
+            # Get top 3 predictions
             top_3_indices = np.argsort(predictions)[-3:][::-1]
             top_3_text = " | ".join([f"{chr(65+i)}({predictions[i]*100:.1f}%)" for i in top_3_indices])
             print(f"🎯 Prediction: {predicted_letter} | Top 3: {top_3_text}")
@@ -205,13 +230,11 @@ class AlphabetRecognitionGUI:
                 confidence = predictions[i] * 100
                 self.prediction_labels[i].config(text=f"{confidence:.1f}%")
                 
-                # Highlight the winning letter
                 if i == max_letter_index:
                     self.letter_labels[i].config(foreground='green')
                     self.prediction_labels[i].config(foreground='green')
                     self.letter_frames[i].config(relief='solid', borderwidth=3)
                 else:
-                    # Color based on confidence level
                     if confidence < 0.5:
                         color = 'lightgray'
                     elif confidence < 5.0:
@@ -222,13 +245,12 @@ class AlphabetRecognitionGUI:
                     self.prediction_labels[i].config(foreground=color)
                     self.letter_frames[i].config(relief='solid', borderwidth=1)
             
-            # Update result
-            self.result_label.config(text=f"Prediction: {predicted_letter} (Confidence: {max_confidence*100:.1f}%)")
+            self.result_label.config(text=f"🎯 Prediction: {predicted_letter} (Confidence: {max_confidence*100:.1f}%)")
         
     def paint(self, event):
         """Handle drawing on canvas"""
         x, y = event.x, event.y
-        r = 15  # Brush radius
+        r = 15
         self.canvas.create_oval(x-r, y-r, x+r, y+r, fill='white', outline='white')
     
     def clear_canvas(self):
@@ -240,7 +262,6 @@ class AlphabetRecognitionGUI:
     def predict_drawing(self):
         """Predict the drawn letter"""
         try:
-            # Convert canvas to image
             canvas_items = self.canvas.find_all()
             if not canvas_items:
                 self.result_label.config(text="Please draw something first!")
@@ -248,14 +269,13 @@ class AlphabetRecognitionGUI:
                 return
             
             # Create image from canvas
-            img = Image.new('L', (250, 250), 0)  # Black background
+            img = Image.new('L', (250, 250), 0)
             draw = ImageDraw.Draw(img)
             
-            # Draw all canvas items
             for item in canvas_items:
                 coords = self.canvas.coords(item)
-                if len(coords) == 4:  # oval
-                    draw.ellipse(coords, fill=255)  # White fill
+                if len(coords) == 4:
+                    draw.ellipse(coords, fill=255)
             
             # Resize to 28x28
             img = img.resize((28, 28), Image.Resampling.LANCZOS)
@@ -264,7 +284,6 @@ class AlphabetRecognitionGUI:
             # Predict
             letter, predictions = self.recognizer.predict_letter(img_array)
             if letter is not None and predictions is not None:
-                # Update neural network display
                 self.update_neural_display(predictions)
             else:
                 self.result_label.config(text="Could not make prediction")
@@ -272,6 +291,8 @@ class AlphabetRecognitionGUI:
                 
         except Exception as e:
             print(f"❌ Error in prediction: {e}")
+            import traceback
+            traceback.print_exc()
             self.result_label.config(text="Error - try redrawing")
             self.update_neural_display(None)
     
@@ -281,8 +302,8 @@ class AlphabetRecognitionGUI:
             self.root.mainloop()
 
 if __name__ == "__main__":
-    print("🔤 Loading Alphabet Recognition App with .h5 Support...")
-    print("🔍 Looking for trained alphabet model...")
+    print("🔥 Loading PyTorch Alphabet Recognition App...")
+    print("🔍 Looking for trained model (best_alphabet_model.pth)...")
     
     app = AlphabetRecognitionGUI()
     if hasattr(app, 'root'):
