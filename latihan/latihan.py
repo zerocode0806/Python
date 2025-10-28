@@ -28,3 +28,9 @@ total_bayar = belanja - diskon
 print("Total belanja:", belanja)
 print("Diskon:", diskon)
 print("Total yang harus dibayar:", total_bayar)
+
+# print menggunakan f-string
+nama = input("Masukkan nama Anda: ")
+umur = int(input("Masukkan umur Anda: "))
+
+print(f"Nama saya {nama} dan saya berumur {umur} tahun")

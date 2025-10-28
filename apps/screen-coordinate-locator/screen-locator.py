@@ -23,4 +23,3 @@ with KeyboardListener(on_press=on_press) as keyboard_listener:
     keyboard_listener.join()
 
 mouse_listener.stop()
-tes spamtes s

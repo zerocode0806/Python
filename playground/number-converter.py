@@ -32,6 +32,6 @@ def show_all_bases(number_str, from_base):
 
 # 🔹 Contoh penggunaan:
 show_all_bases("200", 10)    # input desimal 10
-show_all_bases("0011", 2)   # input biner 1010
-show_all_bases("12", 8)     # input oktal 12
-show_all_bases("A", 16)     # input hex A
+# show_all_bases("0011", 2)   # input biner 1010
+# show_all_bases("12", 8)     # input oktal 12
+# show_all_bases("A", 16)     # input hex A
