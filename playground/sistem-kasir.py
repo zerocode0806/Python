@@ -11,11 +11,11 @@ for i in range(1, jumlah_barang + 1):
     total += harga_barang
 
 # Hitung diskon berdasarkan jumlah barang
-if jumlah_barang > 15:
-    diskon = 0.15
-elif jumlah_barang > 10:
+if total > 1000000:
+    diskon = 0.20
+elif total > 500000:
     diskon = 0.10
-elif jumlah_barang > 5:
+elif total > 100000:
     diskon = 0.05
 else:
     diskon = 0
